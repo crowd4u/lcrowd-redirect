@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta name="referrer" content="no-referrer">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline';">
+    <title>Crowd4U 2.0 書誌同定タスク</title>
+    <script>
+        // Crowd4U 2.0 URI
+        const CROWD4U_2_0_URI = "https://next.crowd4u.org"
+
+
+        // ========== Controller ==========
+        
+        // タスクを経由せず、強制的にコールバックURLにリダイレクトするフラグ
+        const PASSTHROUGH = false
+
+        // ワークフローid
+        const WORKFLOW_ID = '8fd4e02b-925a-472a-82d4-c81cc2a73671'
+
+        // 強制コールバックを許可するドメインリスト
+        const allowList = [
+            'next.crowd4u.org',
+            'www.slis.doshisha.ac.jp/~ushi/',
+        ]
+        
+        // =================================
+
+
+        // リダイレクト先の書誌同定タスク URL の組み立て
+        const baseUrl = `${CROWD4U_2_0_URI}/runs/wf/${WORKFLOW_ID}/run`
+
+        // 現在の URL のクエリ文字列を取得
+        const queryString = window.location.search
+
+        // コールバック URL 抽出 (存在しなければ Crowd4U 2.0 URI を使用)
+        const callbackUrl = (()=>{
+            try {
+                const cu = new URLSearchParams(queryString).get('callback')
+
+                // 空文字列であればトップページにリダイレクト
+                if (!cu) return CROWD4U_2_0_URI
+
+                // 許可されているドメインの場合は、そのページにリダイレクト
+                const url = new URL(cu)
+                const netlocPath = url.host + url.pathname
+                for (const a of allowList) {
+                    if (netlocPath.includes(a)) return cu
+                }
+            } catch (e) {
+                // エラーが発生した場合はエラーを表示し、トップページにリダイレクト
+                console.error(e)
+            }
+
+            // 許可ドメインに存在しない URL が指定されていたらトップページにリダイレクト
+            return CROWD4U_2_0_URI
+        })()
+        
+        // 新しい URL を構築
+        const newUrl = PASSTHROUGH ? callbackUrl : baseUrl + queryString
+
+        // リダイレクト
+        window.location.href = newUrl
+    </script>
+    <meta http-equiv="refresh" content="0; url=javascript:void(0);">
+</head>
+<body>
+    <p>リダイレクト中です。。。</p>
+</body>
+</html>

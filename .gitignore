@@ -1,0 +1,9 @@
+# general
+*.tmp
+
+# macOS
+._*
+.DS_Store
+
+# Excel, Word or PowerPoint
+~$*
